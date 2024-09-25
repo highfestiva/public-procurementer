@@ -85,7 +85,7 @@ def upload_file():
         txt_filename = pdf_filename.replace('.pdf', '.txt')
         questions = pdf_to_questions(txt_filename, pdf_data)
 
-        answers = answer_questions(company, questions[:2])
+        answers = answer_questions(company, questions[:6])
 
         title_split = [q.splitlines() for q in questions]
         titles = [ts[0] for ts in title_split]
@@ -129,7 +129,10 @@ def answer_questions(company, questions):
     system = COMPANY_HEADER + company.strip() + COMPANY_FOOTER
     answers = []
     for question in questions:
-        answer = ai.ask_question(system, question)
+        if 'bifoga' in question.lower()[-20:]:
+            answer = '-'
+        else:
+            answer = ai.ask_question(system, question)
         answers.append(answer)
     return answers
 

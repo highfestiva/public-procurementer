@@ -27,7 +27,7 @@ Vi utför all tillverkning och leveranser själva. Företaget jobbar proaktivt f
       <input id="public_procurement" type="file" name="file" accept="application/pdf">
     </p>
 
-    <input type="submit" value="Upload">
+    <input type="submit" value="Skicka" onclick="this.form.submit(); this.disabled=true; this.value='Behandlar...';">
   </form>
 
   {% with messages = get_flashed_messages() %}
