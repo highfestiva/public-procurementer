@@ -108,3 +108,6 @@ resources/models/ref
 orig_data/
 resources/sounds/
 uploads/
+
+env.list
+uploads/

@@ -1,6 +1,8 @@
+#!/usr/bin/env python3
+
 import ai
 from collections import Counter, defaultdict
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, flash, redirect, request, render_template, send_file, url_for
 import io
 from pathlib import Path
 from pypdf import PdfReader
@@ -36,6 +38,17 @@ assert not QUESTION_STARTS_REGEXPS[0].match(' 2. Något')
 
 COMPANY_HEADER = 'Låtsas att du är en representant för ett företag.\n\n'
 COMPANY_FOOTER = '\n\nSvara koncist på följande fråga.'
+
+
+@app.route('/download')
+@app.route('/download/<path:fname>')
+def download_file(fname=None):
+    if not fname:
+        fnames = Path(UPLOAD_FOLDER).glob('*')
+        paths = [str(fname).replace(UPLOAD_FOLDER, 'download') for fname in fnames]
+        return render_template('links.html', links=paths)
+    fname = fname.replace('download', UPLOAD_FOLDER)
+    return send_file(fname)
 
 
 @app.route('/upload', methods=['GET', 'POST'])
@@ -196,4 +209,4 @@ def is_question_start(line):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=True)
