@@ -1,3 +1,4 @@
+import ai
 from collections import Counter, defaultdict
 from flask import Flask, render_template, request, redirect, url_for, flash
 import io
@@ -33,33 +34,46 @@ assert QUESTION_STARTS_REGEXPS[0].match('2. Systematiskt miljöarbete')
 assert not QUESTION_STARTS_REGEXPS[0].match('a. Annat')
 assert not QUESTION_STARTS_REGEXPS[0].match(' 2. Något')
 
+COMPANY_HEADER = 'Låtsas att du är en representant för ett företag.\n\n'
+COMPANY_FOOTER = '\n\nSvara koncist på följande fråga.'
+
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
+        company = request.form['company_info']
+        if len(company) < 50:
+            flash('Företagsinfo för knapphändig')
+            return redirect(request.url)
+
         # Check if the post request has the file part
         if 'file' not in request.files:
-            flash('No file part')
+            flash('PDF för upphandling saknas')
             return redirect(request.url)
 
         file = request.files['file']
 
         # If user does not select file, the browser submits an empty file without a filename
         if file.filename == '':
-            flash('No selected file')
+            flash('PDF för upphandling saknas')
             return redirect(request.url)
 
         # Check if the file is allowed (i.e., it's a PDF)
         if not file or not allowed_file(file.filename):
-            flash('Allowed file type is PDF')
+            flash('Endast PDF-filer för upphandlingar godtas')
             return redirect(request.url)
 
         pdf_filename, pdf_data = write_pdf(file)
 
         txt_filename = pdf_filename.replace('.pdf', '.txt')
-        pdf_to_text(txt_filename, pdf_data)
+        questions = pdf_to_questions(txt_filename, pdf_data)
 
-        return redirect(url_for('upload_file'))
+        answers = answer_questions(company, questions[:2])
+
+        title_split = [q.splitlines() for q in questions]
+        titles = [ts[0] for ts in title_split]
+        questions = ['\n'.join(ts[1:]) for ts in title_split]
+        return render_template('result.html', qa=zip(titles, questions, answers))
 
     return render_template('upload.html')
 
@@ -72,7 +86,7 @@ def write_pdf(file):
     return filename, pdf_data
 
 
-def pdf_to_text(txt_filename, pdf_data):
+def pdf_to_questions(txt_filename, pdf_data):
     pdf_file = io.BytesIO(pdf_data)
     pdf_reader = PdfReader(pdf_file)
     pages = []
@@ -85,11 +99,22 @@ def pdf_to_text(txt_filename, pdf_data):
 
     lines = cleanup_text_lines(pages, metadata)
 
-    questions = find_questions(lines)
+    questions = list(find_questions(lines))
     text = '\n\n'.join(['Question:\n'+q for q in questions])
 
     with open(Path(UPLOAD_FOLDER) / txt_filename, 'wt', encoding='utf8') as local_file:
         local_file.write(text)
+
+    return questions
+
+
+def answer_questions(company, questions):
+    system = COMPANY_HEADER + company.strip() + COMPANY_FOOTER
+    answers = []
+    for question in questions:
+        answer = ai.ask_question(system, question)
+        answers.append(answer)
+    return answers
 
 
 def allowed_file(filename):

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="sv">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,9 +7,26 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+<div class="center">
   <h1>Upload Public Procurement PDF</h1>
   <form method="post" enctype="multipart/form-data">
-    <input type="file" name="file" accept="application/pdf">
+    <p>
+      <p><label for="company_info">Företagsinfo:</label></p>
+      <textarea id="company_info" name="company_info" rows="12" cols="60">
+Företag: WeatherWear AB
+Branch: Kläder
+E-post: johan@weatherwear.se
+Organisationsnummer: 123456-7890
+Godkänd för F-skatt: Ja
+
+Vi utför all tillverkning och leveranser själva. Företaget jobbar proaktivt för att reducera påverkan på miljön, och vid behov har vi erfaren personal som hanterar tillbud.
+      </textarea>
+    </p>
+    <p>
+      <label for="public_procurement">Ladda upp upphandling:</label>
+      <input id="public_procurement" type="file" name="file" accept="application/pdf">
+    </p>
+
     <input type="submit" value="Upload">
   </form>
 
@@ -22,5 +39,6 @@
     </ul>
     {% endif %}
   {% endwith %}
+</div>
 </body>
 </html>

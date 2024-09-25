@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Public Procurement PDF</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<div class="easy">
+  <h1>Svar på upphandling</h1>
+  {% for title, question, answer in qa %}
+  <p><b>{{ title }}</b></p>
+  <p>
+    {% for qline in question.splitlines() %}
+    {{ qline }}
+    {% endfor %}
+  </p>
+  <p><b>Svar:</b> {{ answer }}</p>
+  <br/>
+  {% endfor %}
+</div>
+</body>
+</html>
