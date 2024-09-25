@@ -2,7 +2,7 @@
 
 import ai
 from collections import Counter, defaultdict
-from flask import Flask, flash, redirect, request, render_template, send_file, url_for
+from flask import Flask, flash, redirect, request, render_template, send_from_directory
 import io
 from pathlib import Path
 from pypdf import PdfReader
@@ -40,15 +40,19 @@ COMPANY_HEADER = 'Låtsas att du är en representant för ett företag.\n\n'
 COMPANY_FOOTER = '\n\nSvara koncist på följande fråga.'
 
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory('static', 'favicon.ico', mimetype='image/x-icon')
+
+
 @app.route('/download')
 @app.route('/download/<path:fname>')
 def download_file(fname=None):
     if not fname:
         fnames = Path(UPLOAD_FOLDER).glob('*')
         paths = [str(fname).replace(UPLOAD_FOLDER, 'download') for fname in fnames]
-        return render_template('links.html', links=paths)
-    fname = fname.replace('download', UPLOAD_FOLDER)
-    return send_file(fname)
+        return render_template('download.html', links=paths)
+    return send_from_directory(UPLOAD_FOLDER, fname)
 
 
 @app.route('/upload', methods=['GET', 'POST'])
@@ -85,7 +89,7 @@ def upload_file():
 
         title_split = [q.splitlines() for q in questions]
         titles = [ts[0] for ts in title_split]
-        questions = ['\n'.join(ts[1:]) for ts in title_split]
+        questions = ['\n'.join(ts[1:]).strip() for ts in title_split]
         return render_template('result.html', qa=zip(titles, questions, answers))
 
     return render_template('upload.html')

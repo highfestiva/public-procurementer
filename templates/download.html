@@ -3,15 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Offentlig upphandling</title>
+  <title>Ladda ned offentlig upphandling</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
 <div class="easy">
   <h1>Filer</h1>
   {% for link in links %}
-  <p><a href="{{link}}">{{link}}</a></p>
+  <p><a href="{{link}}" download>{{link}}</a></p>
   {% endfor %}
+
+  <br/>
+  <h2>Gå...</h2>
+  <p><a href="/upload">... tillbaka</a></p>
 </div>
 </body>
 </html>
